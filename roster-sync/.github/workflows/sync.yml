@@ -1,0 +1,24 @@
+name: roster-sync
+
+# WHEN to run
+on:
+  schedule:
+    - cron: "0 * * * *"     # every hour, on the hour (GitHub may lag a few minutes)
+  workflow_dispatch: {}      # also lets you run it by hand from the Actions tab
+
+# WHAT to do each run
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4          # grab your code
+      - uses: actions/setup-python@v5      # install Python
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt   # install the tools
+      - run: python main.py                    # run the sync
+        env:
+          CLOSE_API_KEY:   ${{ secrets.CLOSE_API_KEY }}
+          GOOGLE_SA_JSON:  ${{ secrets.GOOGLE_SA_JSON }}
+          ROSTER_SHEET_ID: ${{ secrets.ROSTER_SHEET_ID }}
+          DRY_RUN:         ${{ vars.DRY_RUN }}
